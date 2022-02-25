@@ -172,7 +172,8 @@ function createQueryFields() {
         hideNewBugButton();
         hideNotification();
         async.parallel([
-            loadProductList,
+            loadProductsList,
+            loadMilestonesList
         ], function(err, result) {
             hideSpinner();
         });
