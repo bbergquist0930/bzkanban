@@ -104,8 +104,9 @@ function initNav(callback) {
 
     async.parallel([
         loadName,
-        loadProductsList,
-        loadMilestonesList
+        loadClassificationList
+        // loadProductsList,
+        // loadMilestonesList
     ],
     function(err, results) {
         console.log("Nav initialized!");
