@@ -150,7 +150,7 @@ function createQueryFields() {
     productList.disabled = "true"; // until content is loaded
 
     // When the user changes the Classification drop down
-    classifcationList.addEventListener("change", function() {
+    classificationList.addEventListener("change", function() {
         bzClassification = document.getElementById("textClassification").value;
 
         // Disable Product until it's refreshed
