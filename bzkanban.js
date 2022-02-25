@@ -492,6 +492,11 @@ function loadClassificationList(callback) {
 }
 
 function loadProductsList(callback) {
+    if (bzClassification === "") {
+        return callback();
+    }
+
+    clearProductsList();
     httpGet("/rest.cgi/product?type=enterable&include_fields=name,classification", function(response) {
         document.getElementById("textProduct").disabled = false;
         var products = response.products;
@@ -940,6 +945,11 @@ function clearCards() {
     document.querySelectorAll(".board-column-card-count").forEach(function(el) {
         el.remove();
     });
+}
+
+function clearProductsList() {
+    var elem = document.getElementById("textProduct");
+    removeChildren(elem);
 }
 
 function clearMilestonesList() {
