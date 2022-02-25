@@ -247,6 +247,8 @@ function createQueryFields() {
         debounce( filterByString( document.getElementById("textFilter").value ), 500);
     });
 
+    classification.appendChild(classificationLabel);
+    classification.append(classificationList);
     product.appendChild(productLabel);
     product.appendChild(productList);
     milestone.appendChild(milestoneLabel);
@@ -256,6 +258,7 @@ function createQueryFields() {
     filter.appendChild(filterIcon);
     filter.appendChild(filterText);
 
+    query.append(classification);
     query.appendChild(product);
     query.appendChild(milestone);
     query.appendChild(assignee);
@@ -467,7 +470,7 @@ function loadBugs(callback) {
 }
 
 function loadClassificationList(callback) {
-    httpGet("/rest.cgi/classification?include_fields=name", function(response) {
+    httpGet("/rest.cgi/classifications?include_fields=name", function(response) {
         document.getElementById("textClassification").disabled = false;
         var classifications = response.classifications;
         classifications.sort(function(a, b) {
