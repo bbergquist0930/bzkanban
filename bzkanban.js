@@ -17,6 +17,7 @@ var bzOptions = {
 };
 
 // "Private" global variables. Do not touch.
+var bzClassification = "";
 var bzProduct = "";
 var bzProductMilestone = "";
 var bzComponent = "";
@@ -135,12 +136,46 @@ function createQueryFields() {
     var query = document.createElement("span");
     query.id = "query";
 
+    var classification = document.createElement("label");
+    var classificationLabel = document.createTextNode("Classification");
+    var classificationList = document.createElement("select");
     var product = document.createElement("label");
     var productLabel = document.createTextNode("Product");
     var productList = document.createElement("select");
+    classificationList.id = "textClassification";
+    classificationList.name = "classification";
+    classificationList.disabled = "true"; // until content is loaded
     productList.id = "textProduct";
     productList.name = "product";
     productList.disabled = "true"; // until content is loaded
+
+    // When the user changes the Classification drop down
+    classifcationList.addEventListener("change", function() {
+        bzClassification = document.getElementById("textClassification").value;
+
+        // Disable Product until it's refreshed
+        document.getElementById("textProduct").disabled = true;
+        // Disable Milestones until it's refreshed
+        document.getElementById("textMilestone").disabled = true;
+
+        // Clear affected state.
+        bzProduct = "";
+        bzProductMilestone = "";
+        bzAssignedTo = "";
+        showSpinner();
+        hideBacklog();
+        clearAssigneesList();
+        clearCards();
+        updateAddressBar();
+        hideBacklogButton();
+        hideNewBugButton();
+        hideNotification();
+        async.parallel([
+            loadProductList,
+        ], function(err, result) {
+            hideSpinner();
+        });
+    });
 
     // When the user changes the Product drop down
     productList.addEventListener("change", function() {
@@ -431,18 +466,40 @@ function loadBugs(callback) {
     });
 }
 
+function loadClassificationList(callback) {
+    httpGet("/rest.cgi/classification?include_fields=name", function(response) {
+        document.getElementById("textClassification").disabled = false;
+        var classifications = response.classifications;
+        classifications.sort(function(a, b) {
+            return a.name.localeCompare(b.name);
+        });
+        classifications.forEach(function(classification) {
+            var option = document.createElement("option");
+            option.value = classification.name;
+            option.text = classification.name;
+            document.getElementById("textClassification").appendChild(option);
+        });
+        // select it in list.
+        document.getElementById("textClassification").value = bzClassification;
+
+        callback();
+    });
+}
+
 function loadProductsList(callback) {
-    httpGet("/rest.cgi/product?type=enterable&include_fields=name", function(response) {
+    httpGet("/rest.cgi/product?type=enterable&include_fields=name,classification", function(response) {
         document.getElementById("textProduct").disabled = false;
         var products = response.products;
         products.sort(function(a, b) {
             return a.name.localeCompare(b.name);
         });
         products.forEach(function(product) {
-            var option = document.createElement("option");
-            option.value = product.name;
-            option.text = product.name;
-            document.getElementById("textProduct").appendChild(option);
+            if (product.classification == bzClassification) {
+                var option = document.createElement("option");
+                option.value = product.name;
+                option.text = product.name;
+                document.getElementById("textProduct").appendChild(option);
+            }
         });
         // select it in list.
         document.getElementById("textProduct").value = bzProduct;
